@@ -6,14 +6,54 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <link rel="stylesheet" href="lux-kanban.css">
-    <script src="lux-kanban.js"></script>
+    <link  href="dist/lux-kanban.css" rel="stylesheet">
+    <script src="dist/lux-kanban.js" type="text/javascript"></script>
 </head>
 <body>
     <div id="kanban" style="height: 100vh;"></div>
 
     <script>
-        var kanban = new LuxKanban("kanban");
+        var kanban = new LuxKanban("kanban", [
+                {
+                    'id': 'backlog',
+                    'title': 'Später',
+                    'items': []
+                },
+                {
+                    'id': 'ongoing',
+                    'title': 'In Kürze',
+                    'items': []
+                },
+                {
+                    'id': 'onwork',
+                    'title': 'Am Bearbeiten',
+                    'items': []
+                },
+                {
+                    'id': 'onreview',
+                    'title': 'Beurteilung & Überprüfung',
+                    'items': []
+
+                },
+                {
+                    'id': 'done',
+                    'title': 'Fertig',
+                    'items': []
+                }
+            ], {
+                gutter           : '15px',                                       // gutter of the board
+                boardWidth       : '250px',                                      // width of the board
+                responsivePercentage: true,                                      // if it is true, use percentage in the width of the boards
+                click            : function (el) {},                             // callback when any board's item are clicked
+                context          : function (el, event) {},                      // callback when any board's item are right clicked
+                dragEl           : function (el, source) {},                     // callback when any board's item are dragged
+                dragendEl        : function (el) {},                             // callback when any board's item stop drag
+                dropEl           : function (el, target, source, sibling) {},    // callback when any board's item drop in a board
+                dragBoard        : function (el, source) {},                     // callback when any board stop drag
+                dragendBoard     : function (el) {},                             // callback when any board stop drag
+                buttonClick      : function(el, boardId) {},                     // the specified callback does not cancel the browser event. possible values: "click", "context"
+            }
+        );
     </script>
 </body>
 </html>

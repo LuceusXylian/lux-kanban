@@ -1,18 +1,25 @@
 {
-  "name": "lux-autocomplete",
+  "name": "lux-kanban",
   "version": "1.0.0",
-  "description": "lux-autocomplete",
-  "main": "lux-autocomplete-source.ts",
+  "description": "lux-kanban",
+  "main": "lux-kanban.ts",
   "scripts": {
-    "test": "npx tsc -p tsconfig.json\nnode ../lux-autocomplete.js"
+    "test": "npx tsc -p tsconfig.json\nnode ./dist/lux-kanban.js"
   },
   "keywords": [
     "editor"
   ],
-  "license": "Apache-2.0",
+  "license": "GPL-2.0",
   "devDependencies": {
     "typescript": "^4.4.4"
   },
-  "dependencies": {
-  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuceusXylian/lux-kanban.git"
+  },
+  "author": "LuceusXylian",
+  "bugs": {
+    "url": "https://github.com/LuceusXylian/lux-kanban/issues"
+  },
+  "homepage": "https://github.com/LuceusXylian/lux-kanban#readme"
 }
