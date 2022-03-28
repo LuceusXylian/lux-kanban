@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban</title>
+    <link href="jkanban.css" rel="stylesheet">
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <script src="jkanban.js"></script>
+    <style>
+        .kanban-board { background: #f9f9f9; border-radius: 24px; border-bottom: 1px solid #ddd; transition: transform .3s ease-out; }
+        .kanban-board:hover { background: #eee; }
+    </style>
+</head>
+<body>
+    <div id="kanban"></div>
+    <script>
+        var kanban = new jKanban({
+            element          : '#kanban',                                    // selector of the kanban container
+            gutter           : '15px',                                       // gutter of the board
+            widthBoard       : '250px',                                      // width of the board
+            responsivePercentage: true,                                      // if it is true I use percentage in the width of the boards and it is not necessary gutter and widthBoard
+            dragItems        : true,                                         // if false, all items are not draggable
+            boards           : [
+                {
+                    'id': 'backlog',
+                    'title': 'Später',
+                    'item': []
+                },
+                {
+                    'id': 'ongoing',
+                    'title': 'In Kürze',
+                    'item': []
+                },
+                {
+                    'id': 'onwork',
+                    'title': 'Am Bearbeiten',
+                    'item': []
+                },
+                {
+                    'id': 'done',
+                    'title': 'Fertig',
+                    'item': []
+                }
+            ],
+            dragBoards       : false,                                        // the boards are draggable, if false only item can be dragged
+            itemAddOptions: {
+                enabled: true,                                               // add a button to board for easy item creation
+                content: '+',                                                // text or html content of the board button   
+                class: 'kanban-title-button btn btn-primary btn-sm',         // default class of the button
+                footer: false                                                // position the button on footer
+            },    
+            itemHandleOptions: {
+                enabled             : true,                                 // if board item handle is enabled or not
+                handleClass         : "kanban-item",                         // css class for your custom item handle
+                customCssHandler    : "drag_handler",                        // when customHandler is undefined, jKanban will use this property to set main handler class
+                customCssIconHandler: "drag_handler_icon",                   // when customHandler is undefined, jKanban will use this property to set main icon handler class. If you want, you can use font icon libraries here
+                customHandler       : '<input type="text" class="form-control mb-1" value="%title%">'  // your entirely customized handler. Use %title% to position item title 
+                                                                                    // any key's value included in item collection can be replaced with %key%
+            },
+            click            : function (el) {},                             // callback when any board's item are clicked
+            context          : function (el, event) {},                      // callback when any board's item are right clicked
+            dragEl           : function (el, source) {},                     // callback when any board's item are dragged
+            dragendEl        : function (el) {},                             // callback when any board's item stop drag
+            dropEl           : function (el, target, source, sibling) {},    // callback when any board's item drop in a board
+            dragBoard        : function (el, source) {},                     // callback when any board stop drag
+            dragendBoard     : function (el) {},                             // callback when any board stop drag
+            buttonClick      : function(el, boardId) {
+                // callback when the board's button is clicked
+                var formitem = document.createElement("input");
+                formitem.title = "Meine neue Aufgabe";
+                var elem = kanban.addElement(boardId, formitem);
+                console.log("elem", elem);
+            },                     
+            propagationHandlers: [],                                         // the specified callback does not cancel the browser event. possible values: "click", "context"
+        })
+    </script>
+</body>
+</html>

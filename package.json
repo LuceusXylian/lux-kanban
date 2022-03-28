@@ -1,0 +1,18 @@
+{
+  "name": "lux-autocomplete",
+  "version": "1.0.0",
+  "description": "lux-autocomplete",
+  "main": "lux-autocomplete-source.ts",
+  "scripts": {
+    "test": "npx tsc -p tsconfig.json\nnode ../lux-autocomplete.js"
+  },
+  "keywords": [
+    "editor"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+  }
+}

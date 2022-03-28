@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "lib": ["es5", "es6", "dom"],
+        "rootDir": "./",
+        "outDir": "../",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "allowJs": false,
+        "target": "es5",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
+    },
+    "include": ["./lux-kanban.ts"],
+    "exclude": ["node_modules", "**/*.spec.ts"],
+}
