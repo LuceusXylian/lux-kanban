@@ -25,11 +25,11 @@ var LuxKanban = (function () {
         }
         this.boards = boards;
         this.gutter = options.gutter === undefined ? "10px" : options.gutter;
-        if (options.widthBoard === undefined || options.autoResponsivePercentageMode) {
+        if (options.boardWidth === undefined || options.autoResponsivePercentageMode) {
             this.boardWidth = 'calc(' + (100 / this.boards.length) + '% - ' + this.gutter + ')';
         }
         else {
-            this.boardWidth = options.widthBoard;
+            this.boardWidth = options.boardWidth;
         }
         for (var b = 0; b < this.boards.length; b++) {
             var board = this.boards[b];
