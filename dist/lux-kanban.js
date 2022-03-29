@@ -31,6 +31,10 @@ var LuxKanban = (function () {
         else {
             this.boardWidth = options.boardWidth;
         }
+        this.render();
+    }
+    LuxKanban.prototype.render = function () {
+        this.targetElement.innerHTML = '';
         for (var b = 0; b < this.boards.length; b++) {
             var board = this.boards[b];
             var board_dom = this.targetElement.appendChild(document.createElement("div"));
@@ -38,13 +42,19 @@ var LuxKanban = (function () {
             board_dom.style.width = this.boardWidth;
             board_dom.style.marginLeft = this.gutter;
             board_dom.style.marginBottom = this.gutter;
-            var board_dom_title = board_dom.appendChild(document.createElement("div"));
+            var board_dom_header = board_dom.appendChild(document.createElement("div"));
+            board_dom_header.className = "lux-kanban-board-header";
+            var board_dom_title = board_dom_header.appendChild(document.createElement("div"));
             board_dom_title.className = "lux-kanban-board-title";
             board_dom_title.innerText = board.title;
-            var board_dom_items_container = board_dom_title.appendChild(document.createElement("div"));
+            var board_dom_new = board_dom_header.appendChild(document.createElement("button"));
+            board_dom_new.type = 'button';
+            board_dom_new.className = "lux-kanban-board-new";
+            board_dom_new.innerText = '+';
+            var board_dom_items_container = board_dom.appendChild(document.createElement("div"));
             board_dom_items_container.className = "lux-kanban-board-items-container";
         }
-    }
+    };
     return LuxKanban;
 }());
 //# sourceMappingURL=lux-kanban.js.map
