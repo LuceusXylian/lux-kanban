@@ -41,7 +41,7 @@
 }
 
 .lux-kanban-board-item { padding: 1rem; margin-top: 1rem; border-radius: 6px; background-color: #fff; }
-.lux-kanban-board-item-editor { width: 100%; font-family: inherit; }
+.lux-kanban-board-item-editor { width: 100%; max-width: 100%; font-family: inherit; border-radius: 6px; border: 1px solid #ccc; }
 
 
 /* dialog */
