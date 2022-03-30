@@ -70,10 +70,31 @@ var LuxKanban = (function () {
         }
     };
     LuxKanban.prototype.renderBoardItem = function (id, content) {
+        var _this = this;
         var dom_boardItem = document.createElement("div");
         dom_boardItem.id = id;
         dom_boardItem.className = 'lux-kanban-board-item';
         dom_boardItem.innerHTML = content;
+        var dom_boardItem_ondrag = null;
+        var dragmove = function (e) {
+            if (dom_boardItem_ondrag !== null) {
+                dom_boardItem_ondrag.style.left = e.clientX + "px";
+                dom_boardItem_ondrag.style.top = e.clientY + "px";
+            }
+        };
+        dom_boardItem.addEventListener("click", function () {
+            dom_boardItem.classList.add("ondrag");
+            dom_boardItem_ondrag = document.body.appendChild(_this.renderBoardItem(id + "-ondrag", content));
+            dom_boardItem_ondrag.style.position = "fixed";
+            document.body.addEventListener('mousemove', dragmove);
+        });
+        dom_boardItem.addEventListener("dragend", function () {
+            dom_boardItem.classList.remove("ondrag");
+            if (dom_boardItem_ondrag !== null) {
+                dom_boardItem_ondrag.remove();
+            }
+            document.body.removeEventListener('mousemove', dragmove);
+        });
         var dom_boardItem_editor = dom_boardItem.appendChild(document.createElement("textarea"));
         dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
         return dom_boardItem;
