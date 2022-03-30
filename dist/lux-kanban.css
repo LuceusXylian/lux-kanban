@@ -10,6 +10,7 @@
 }
 .lux-kanban-board:hover { background: #eee; }
 
+.lux-kanban-board-header { user-select: none; }
 .lux-kanban-board-title {
     display: inline-block; vertical-align: middle;
     width: calc(100% - 38px);
@@ -38,6 +39,9 @@
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     cursor: pointer;
 }
+
+.lux-kanban-board-item { padding: 1rem; margin-top: 1rem; border-radius: 6px; background-color: #fff; }
+.lux-kanban-board-item-editor { width: 100%; font-family: inherit; }
 
 
 /* dialog */
