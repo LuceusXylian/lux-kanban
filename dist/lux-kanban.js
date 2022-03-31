@@ -57,7 +57,7 @@ var LuxKanban = (function () {
             dom_board_new.className = "lux-kanban-board-new";
             dom_board_new.innerText = '+';
             dom_board_new.addEventListener("click", function () {
-                _this.addBoardItem(dom_board, boardIndex);
+                _this.addBoardItem(dom_board_items_container, boardIndex);
             });
             var dom_board_items_container = dom_board.appendChild(document.createElement("div"));
             dom_board_items_container.className = "lux-kanban-board-items-container";
@@ -120,11 +120,11 @@ var LuxKanban = (function () {
         dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
         return dom_boardItem;
     };
-    LuxKanban.prototype.addBoardItem = function (board_dom, boardIndex) {
+    LuxKanban.prototype.addBoardItem = function (dom_board_items_container, boardIndex) {
         var id = "lux-kanban-board-item-" + new Date().getTime();
         var itemIndex = this.boards[boardIndex].items.length;
         this.boards[boardIndex].items[itemIndex] = new LuxKanbanBoardItem(id, "");
-        board_dom.appendChild(this.renderBoardItem(id, ""));
+        dom_board_items_container.prepend(this.renderBoardItem(id, ""));
         return itemIndex;
     };
     return LuxKanban;

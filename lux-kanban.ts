@@ -75,7 +75,7 @@ class LuxKanban {
             dom_board_new.className = "lux-kanban-board-new";
             dom_board_new.innerText = '+';
             dom_board_new.addEventListener("click", () => {
-                this.addBoardItem(dom_board, boardIndex);
+                this.addBoardItem(dom_board_items_container, boardIndex);
             });
             
 
@@ -155,11 +155,11 @@ class LuxKanban {
         return dom_boardItem;
     }
 
-    addBoardItem(board_dom: HTMLElement, boardIndex: number): number {
+    addBoardItem(dom_board_items_container: HTMLElement, boardIndex: number): number {
         var id = "lux-kanban-board-item-" + new Date().getTime();
         var itemIndex = this.boards[boardIndex].items.length;
         this.boards[boardIndex].items[itemIndex] = new LuxKanbanBoardItem(id, "");
-        board_dom.prepend(this.renderBoardItem(id, ""));
+        dom_board_items_container.prepend(this.renderBoardItem(id, ""));
         return itemIndex;
     }
 }
