@@ -22,6 +22,8 @@ class LuxKanbanBoard {
 
 class LuxKanban {
     targetElement: HTMLElement;
+    dom_boards: HTMLElement[] = [];
+
     boards: LuxKanbanBoard[];
     gutter: string;
     boardWidth: string;
@@ -48,6 +50,8 @@ class LuxKanban {
     
     render() {
         this.targetElement.innerHTML = '';
+        this.dom_boards = [];
+
         for (let b = 0; b < this.boards.length; b++) {
             const boardIndex = b;
             const board = this.boards[boardIndex];
@@ -81,6 +85,8 @@ class LuxKanban {
                 const item = board.items[i];
                 dom_board_items_container.appendChild(this.renderBoardItem(item.id, item.content));
             }
+
+            this.dom_boards[this.dom_boards.length] = dom_board;
         }
     }
 
@@ -91,31 +97,58 @@ class LuxKanban {
         dom_boardItem.innerHTML = content;
 
         let dom_boardItem_ondrag: HTMLElement | null = null;
+        let dom_boardItem_offset_x: number = 0;
+        let dom_boardItem_offset_y: number = 0;
+        let dom_boardItem_timeout: number = 0;
         var dragmove = function(e: any){
             if (dom_boardItem_ondrag !== null) {
-                dom_boardItem_ondrag.style.left = e.clientX+"px";
-                dom_boardItem_ondrag.style.top = e.clientY+"px";
+                dom_boardItem_ondrag.style.left = (e.clientX - dom_boardItem_offset_x)+"px";
+                dom_boardItem_ondrag.style.top = (e.clientY - dom_boardItem_offset_y)+"px";
             }
         };
 
-        dom_boardItem.addEventListener("click", () => {
-            dom_boardItem.classList.add("ondrag");
-            dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(id+"-ondrag", content));
-            dom_boardItem_ondrag.style.position = "fixed";
+        
+        var mouseup_event = () => {
+            clearTimeout(dom_boardItem_timeout);
 
-            // start mouse movement tracking
-            document.body.addEventListener('mousemove', dragmove);
-        });
+            if (!mouse_is_up) {
+                mouse_is_up = true;
+                console.log("mouseup")
+                dom_boardItem.classList.remove("disabled");
+                if(dom_boardItem_ondrag !== null) {
+                    dom_boardItem_ondrag.remove();
+                }
 
-        dom_boardItem.addEventListener("dragend", () => {
-            dom_boardItem.classList.remove("ondrag");
-            if(dom_boardItem_ondrag !== null) {
-                dom_boardItem_ondrag.remove();
+                // kill mouse movement tracking
+                document.body.removeEventListener('mousemove', dragmove);
             }
+        };
 
-            // kill mouse movement tracking
-            document.body.removeEventListener('mousemove', dragmove);
+
+
+        var mouse_is_up = true;
+        dom_boardItem.addEventListener("mousedown", () => {
+            if (mouse_is_up) {
+                dom_boardItem_timeout = setTimeout(() => {
+                    mouse_is_up = false;
+
+                    dom_boardItem.classList.add("disabled");
+                    dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(id+"-ondrag", content));
+                    dom_boardItem_ondrag.classList.add("ondrag");
+                    dom_boardItem_ondrag.style.position = "fixed";
+        
+                    // start mouse movement tracking
+                    document.body.addEventListener('mousemove', dragmove);
+                    dom_boardItem_offset_x = dom_boardItem.offsetWidth / 2;
+                    dom_boardItem_offset_y = dom_boardItem.offsetHeight / 2;
+                }, 50);
+            
+                document.body.addEventListener("mouseup", mouseup_event);
+            }
         });
+
+        //TODO: mouseup events on boards and items (drag reciever)
+
 
         var dom_boardItem_editor = dom_boardItem.appendChild( document.createElement("textarea") );
         dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
