@@ -159,7 +159,7 @@ class LuxKanban {
         var id = "lux-kanban-board-item-" + new Date().getTime();
         var itemIndex = this.boards[boardIndex].items.length;
         this.boards[boardIndex].items[itemIndex] = new LuxKanbanBoardItem(id, "");
-        board_dom.appendChild(this.renderBoardItem(id, ""));
+        board_dom.prepend(this.renderBoardItem(id, ""));
         return itemIndex;
     }
 }
