@@ -77,6 +77,9 @@ class LuxKanban {
             dom_board_new.addEventListener("click", () => {
                 this.addBoardItem(dom_board_items_container, boardIndex);
             });
+
+            //TODO: add hotkeys for new item (STRG+E|STRG+N)
+            //TODO: add hotkeys for duplicate item (STRG+D)
             
 
             let dom_board_items_container = dom_board.appendChild( document.createElement("div") );
