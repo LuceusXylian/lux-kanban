@@ -111,7 +111,7 @@ class LuxKanban {
         };
 
         
-        var mouseup_event = () => {
+        var mouseup_event = (e: MouseEvent) => {
             clearTimeout(dom_boardItem_timeout);
 
             if (!mouse_is_up) {
@@ -121,6 +121,16 @@ class LuxKanban {
                 if(dom_boardItem_ondrag !== null) {
                     dom_boardItem_ondrag.remove();
                 }
+
+                // mouseup events on boards and items (drag reciever)
+                var elementTarget = document.elementFromPoint(e.clientX, e.clientY);
+                if (elementTarget !== null) {
+                    console.log("elementTarget", elementTarget);
+                    if (elementTarget.tagName === "textarea") {
+                        elementTarget = elementTarget.parentElement;
+                    }
+                }
+                //TODO: handle movement
 
                 // kill mouse movement tracking
                 document.body.removeEventListener('mousemove', dragmove);
@@ -134,11 +144,18 @@ class LuxKanban {
             if (mouse_is_up) {
                 dom_boardItem_timeout = setTimeout(() => {
                     mouse_is_up = false;
+                    document.body.dataset.lke_board_item_id = id;
 
                     dom_boardItem.classList.add("disabled");
                     dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(id+"-ondrag", content));
                     dom_boardItem_ondrag.classList.add("ondrag");
                     dom_boardItem_ondrag.style.position = "fixed";
+                    dom_boardItem_ondrag.style.display = "none";
+                    setTimeout(function() {
+                        if(dom_boardItem_ondrag !== null) {
+                            dom_boardItem_ondrag.style.display = "block";
+                        }
+                    }, 100);
         
                     // start mouse movement tracking
                     document.body.addEventListener('mousemove', dragmove);
@@ -149,9 +166,6 @@ class LuxKanban {
                 document.body.addEventListener("mouseup", mouseup_event);
             }
         });
-
-        //TODO: mouseup events on boards and items (drag reciever)
-
 
         var dom_boardItem_editor = dom_boardItem.appendChild( document.createElement("textarea") );
         dom_boardItem_editor.className = 'lux-kanban-board-item-editor';

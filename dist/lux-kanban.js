@@ -65,6 +65,9 @@ var LuxKanban = (function () {
                 var item = board.items[i];
                 dom_board_items_container.appendChild(this_1.renderBoardItem(item.id, item.content));
             }
+            dom_board.addEventListener("mouseup", function (e) {
+                console.log("mouseup e.target", e.target);
+            });
             this_1.dom_boards[this_1.dom_boards.length] = dom_board;
         };
         var this_1 = this;
@@ -88,7 +91,7 @@ var LuxKanban = (function () {
                 dom_boardItem_ondrag.style.top = (e.clientY - dom_boardItem_offset_y) + "px";
             }
         };
-        var mouseup_event = function () {
+        var mouseup_event = function (e) {
             clearTimeout(dom_boardItem_timeout);
             if (!mouse_is_up) {
                 mouse_is_up = true;
@@ -97,6 +100,8 @@ var LuxKanban = (function () {
                 if (dom_boardItem_ondrag !== null) {
                     dom_boardItem_ondrag.remove();
                 }
+                var elementTarget = document.elementFromPoint(e.clientX, e.clientY);
+                console.log("elementTarget", elementTarget);
                 document.body.removeEventListener('mousemove', dragmove);
             }
         };
@@ -105,10 +110,17 @@ var LuxKanban = (function () {
             if (mouse_is_up) {
                 dom_boardItem_timeout = setTimeout(function () {
                     mouse_is_up = false;
+                    document.body.dataset.lke_board_item_id = id;
                     dom_boardItem.classList.add("disabled");
                     dom_boardItem_ondrag = document.body.appendChild(_this.renderBoardItem(id + "-ondrag", content));
                     dom_boardItem_ondrag.classList.add("ondrag");
                     dom_boardItem_ondrag.style.position = "fixed";
+                    dom_boardItem_ondrag.style.display = "none";
+                    setTimeout(function () {
+                        if (dom_boardItem_ondrag !== null) {
+                            dom_boardItem_ondrag.style.display = "block";
+                        }
+                    }, 100);
                     document.body.addEventListener('mousemove', dragmove);
                     dom_boardItem_offset_x = dom_boardItem.offsetWidth / 2;
                     dom_boardItem_offset_y = dom_boardItem.offsetHeight / 2;
