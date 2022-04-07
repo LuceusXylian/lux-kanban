@@ -1,22 +1,24 @@
 class LuxKanbanBoardItem {
     id: string;
+    boardId: string;
     content: string;
+    position: number;
 
-    constructor(id: string, content: string) {
+    constructor(id: string, boardId: string, content: string, position: number) {
         this.id = id;
+        this.boardId = boardId;
         this.content = content;
+        this.position = position;
     }
 }
 
 class LuxKanbanBoard {
     id: string;
     title: string;
-    items: LuxKanbanBoardItem[];
 
-    constructor(id: string, title: string, items: []) {
+    constructor(id: string, title: string) {
         this.id = id;
         this.title = title;
-        this.items = items;
     }
 }
 
@@ -25,10 +27,11 @@ class LuxKanban {
     dom_boards: HTMLElement[] = [];
 
     boards: LuxKanbanBoard[];
+    boardItems: LuxKanbanBoardItem[];
     gutter: string;
     boardWidth: string;
 
-    constructor(targetElementId: string, boards: LuxKanbanBoard[], options: {gutter: string | undefined, boardWidth: string | undefined, autoResponsivePercentageMode: boolean | undefined, }) {
+    constructor(targetElementId: string, boards: LuxKanbanBoard[], boardItems: LuxKanbanBoardItem[], options: {gutter: string | undefined, boardWidth: string | undefined, autoResponsivePercentageMode: boolean | undefined, }) {
         var targetElement = document.getElementById(targetElementId);
         if (targetElement === null) {
             throw new Error("LuxKanban: targetElement not found with id '"+targetElementId+"'");
@@ -37,6 +40,7 @@ class LuxKanban {
         }
 
         this.boards = boards;
+        this.boardItems = boardItems;
         this.gutter = options.gutter === undefined? "10px" : options.gutter;
 
         if (options.boardWidth === undefined || options.autoResponsivePercentageMode) {
@@ -84,20 +88,30 @@ class LuxKanban {
 
             let dom_board_items_container = dom_board.appendChild( document.createElement("div") );
             dom_board_items_container.className = "lux-kanban-board-items-container";
-            for (let i = 0; i < board.items.length; i++) {
-                const item = board.items[i];
-                dom_board_items_container.appendChild(this.renderBoardItem(item.id, item.content));
+
+            var boardItems = this.getBoardItems(b);
+            for (let i = 0; i < boardItems.length; i++) {
+                const item = boardItems[i];
+                dom_board_items_container.appendChild(this.renderBoardItem(item));
             }
 
             this.dom_boards[this.dom_boards.length] = dom_board;
         }
     }
 
-    renderBoardItem(id: string, content: string): HTMLElement {
+    renderBoardItem(item: LuxKanbanBoardItem): HTMLElement {
         var dom_boardItem = document.createElement("div");
-        dom_boardItem.id = id;
+        dom_boardItem.id = item.id;
         dom_boardItem.className = 'lux-kanban-board-item';
-        dom_boardItem.innerHTML = content;
+
+        var dom_boardItem_editor = dom_boardItem.appendChild( document.createElement("textarea") );
+        dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
+        dom_boardItem_editor.innerHTML = item.content;
+        dom_boardItem_editor.addEventListener("change", () => {
+            item.content = dom_boardItem_editor.value;
+            console.log("dom_boardItem_editor.value", dom_boardItem_editor.value);
+        });
+
 
         let dom_boardItem_ondrag: HTMLElement | null = null;
         let dom_boardItem_offset_x: number = 0;
@@ -144,10 +158,9 @@ class LuxKanban {
             if (mouse_is_up) {
                 dom_boardItem_timeout = setTimeout(() => {
                     mouse_is_up = false;
-                    document.body.dataset.lke_board_item_id = id;
 
                     dom_boardItem.classList.add("disabled");
-                    dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(id+"-ondrag", content));
+                    dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(item));
                     dom_boardItem_ondrag.classList.add("ondrag");
                     dom_boardItem_ondrag.style.position = "fixed";
                     dom_boardItem_ondrag.style.display = "none";
@@ -167,16 +180,45 @@ class LuxKanban {
             }
         });
 
-        var dom_boardItem_editor = dom_boardItem.appendChild( document.createElement("textarea") );
-        dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
         return dom_boardItem;
     }
 
+    getBoardItems(boardIndex: number): LuxKanbanBoardItem[] {
+        const board = this.boards[boardIndex];
+        var boardItems: LuxKanbanBoardItem[] = [];
+
+        for (let i = 0; i < this.boardItems.length; i++) {
+            const boardItem = this.boardItems[i];
+            if (boardItem.boardId === board.id) {
+                boardItems[boardItems.length] = boardItem;
+            }
+        }
+
+        return boardItems.sort(function(a: LuxKanbanBoardItem, b: LuxKanbanBoardItem) {
+            return a.position > b.position? 1 : 0;
+        });
+    }
+
     addBoardItem(dom_board_items_container: HTMLElement, boardIndex: number): number {
+        const board = this.boards[boardIndex];
+
         var id = "lux-kanban-board-item-" + new Date().getTime();
-        var itemIndex = this.boards[boardIndex].items.length;
-        this.boards[boardIndex].items[itemIndex] = new LuxKanbanBoardItem(id, "");
-        dom_board_items_container.prepend(this.renderBoardItem(id, ""));
+        var itemIndex = this.boardItems.length;
+        this.boardItems[itemIndex] = new LuxKanbanBoardItem(id, board.id, "", 1);
+        dom_board_items_container.prepend(this.renderBoardItem(this.boardItems[itemIndex]));
+        
+        // all boardItems of current board except of itemIndex add position +1
+        var boardItems = this.getBoardItems(boardIndex);
+        for (let i = 0; i < boardItems.length; i++) {
+            const item = boardItems[i];
+            if (i != itemIndex) {
+                item.position += 1;
+            }
+        }
+
         return itemIndex;
+    }
+
+    moveBoardItem(id: string, newBoardIndex: number, newBoardItemIndex: number | null) {
     }
 }
