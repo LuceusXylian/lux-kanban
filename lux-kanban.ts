@@ -1,12 +1,14 @@
 class LuxKanbanBoardItem {
     id: string;
     boardId: string;
+    boardIndex: number;
     content: string;
     position: number;
 
-    constructor(id: string, boardId: string, content: string, position: number) {
+    constructor(id: string, boardId: string, boardIndex: number, content: string, position: number) {
         this.id = id;
         this.boardId = boardId;
+        this.boardIndex = boardIndex;
         this.content = content;
         this.position = position;
     }
@@ -62,6 +64,7 @@ class LuxKanban {
             let dom_board = this.targetElement.appendChild( document.createElement("div") );
             dom_board.id = board.id;
             dom_board.className = "lux-kanban-board";
+            dom_board.dataset.boardIndex = b.toString();
             dom_board.style.width = this.boardWidth;
             dom_board.style.marginLeft = this.gutter;
             dom_board.style.marginBottom = this.gutter;
@@ -69,14 +72,17 @@ class LuxKanban {
 
             let dom_board_header = dom_board.appendChild( document.createElement("div") );
             dom_board_header.className = "lux-kanban-board-header";
+            dom_board_header.dataset.boardIndex = b.toString();
 
             let dom_board_title = dom_board_header.appendChild( document.createElement("div") );
             dom_board_title.className = "lux-kanban-board-title";
+            dom_board_title.dataset.boardIndex = b.toString();
             dom_board_title.innerText = board.title
             
             let dom_board_new = dom_board_header.appendChild( document.createElement("button") );
             dom_board_new.type = 'button';
             dom_board_new.className = "lux-kanban-board-new";
+            dom_board_new.dataset.boardIndex = b.toString();
             dom_board_new.innerText = '+';
             dom_board_new.addEventListener("click", () => {
                 this.addBoardItem(dom_board_items_container, boardIndex);
@@ -88,29 +94,36 @@ class LuxKanban {
 
             let dom_board_items_container = dom_board.appendChild( document.createElement("div") );
             dom_board_items_container.className = "lux-kanban-board-items-container";
+            dom_board_items_container.dataset.boardIndex = b.toString();
 
             var boardItems = this.getBoardItems(b);
             for (let i = 0; i < boardItems.length; i++) {
                 const item = boardItems[i];
-                dom_board_items_container.appendChild(this.renderBoardItem(item));
+                dom_board_items_container.appendChild(this.renderBoardItem(i));
             }
 
             this.dom_boards[this.dom_boards.length] = dom_board;
         }
     }
 
-    renderBoardItem(item: LuxKanbanBoardItem): HTMLElement {
+    renderBoardItem(boardItemIndex: number): HTMLElement {
+        var boardItem = this.boardItems[boardItemIndex];
+
         var dom_boardItem = document.createElement("div");
-        dom_boardItem.id = item.id;
+        dom_boardItem.id = boardItem.id;
         dom_boardItem.className = 'lux-kanban-board-item';
+        dom_boardItem.dataset.boardIndex = boardItem.boardIndex.toString();
+        dom_boardItem.dataset.boardItemIndex = boardItemIndex.toString();
 
         var dom_boardItem_editor = dom_boardItem.appendChild( document.createElement("textarea") );
         dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
-        dom_boardItem_editor.innerHTML = item.content;
+        dom_boardItem_editor.dataset.boardIndex = boardItem.boardIndex.toString();
+        dom_boardItem_editor.dataset.boardItemIndex = boardItemIndex.toString();
+        dom_boardItem_editor.innerHTML = boardItem.content;
         dom_boardItem_editor.addEventListener("input", function() {
             dom_boardItem_editor.style.height = '1px';
             dom_boardItem_editor.style.height = dom_boardItem_editor.scrollHeight + 'px';
-            item.content = dom_boardItem_editor.value.split("<").join("&lt;").split(">").join("&gt;");
+            boardItem.content = dom_boardItem_editor.value.split("<").join("&lt;").split(">").join("&gt;");
         });
 
 
@@ -125,7 +138,7 @@ class LuxKanban {
             }
         };
 
-        
+        //TODO: drop preview
         var mouseup_event = (e: MouseEvent) => {
             clearTimeout(dom_boardItem_timeout);
 
@@ -138,14 +151,28 @@ class LuxKanban {
                 }
 
                 // mouseup events on boards and items (drag reciever)
-                var elementTarget = document.elementFromPoint(e.clientX, e.clientY);
-                if (elementTarget !== null) {
+                var elementTarget: HTMLElement | null = this.elementFromPoint(e.clientX, e.clientY);
+                if (elementTarget === null) {
+                    console.error("[lux-kanban] Oh well bad, elementTarget is null. Uff.");
+                } else {
                     console.log("elementTarget", elementTarget);
-                    if (elementTarget.tagName === "textarea") {
-                        elementTarget = elementTarget.parentElement;
+
+                    //TODO: handle movement
+                    if (elementTarget === null) {
+                        console.error("[lux-kanban] Oh well bad, elementTarget is null. Uff.");
+                    } else {
+                        var newBoardIndex: number | null = this.parseInt(elementTarget.dataset.boardIndex);
+                        var boardItemIndex: number | null = this.parseInt(elementTarget.dataset.boardItemIndex);
+        
+                        if (newBoardIndex === null) {
+                            console.error("[lux-kanban] Oh well bad, newBoardIndex is null. Uff.");
+                        } else {
+                            var newPosition: number | null = boardItemIndex === null? null : this.boardItems[boardItemIndex].position -1;
+                            this.moveBoardItem(boardItem, newBoardIndex, newPosition);
+                        }
                     }
                 }
-                //TODO: handle movement
+                
 
                 // kill mouse movement tracking
                 document.body.removeEventListener('mousemove', dragmove);
@@ -161,7 +188,7 @@ class LuxKanban {
                     mouse_is_up = false;
 
                     dom_boardItem.classList.add("disabled");
-                    dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(item));
+                    dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(boardItemIndex));
                     dom_boardItem_ondrag.classList.add("ondrag");
                     dom_boardItem_ondrag.style.position = "fixed";
                     dom_boardItem_ondrag.style.display = "none";
@@ -175,7 +202,7 @@ class LuxKanban {
                     document.body.addEventListener('mousemove', dragmove);
                     dom_boardItem_offset_x = dom_boardItem.offsetWidth / 2;
                     dom_boardItem_offset_y = dom_boardItem.offsetHeight / 2;
-                }, 50);
+                }, 100);
             
                 document.body.addEventListener("mouseup", mouseup_event);
             }
@@ -204,22 +231,48 @@ class LuxKanban {
         const board = this.boards[boardIndex];
 
         var id = "lux-kanban-board-item-" + new Date().getTime();
-        var itemIndex = this.boardItems.length;
-        this.boardItems[itemIndex] = new LuxKanbanBoardItem(id, board.id, "", 1);
-        dom_board_items_container.prepend(this.renderBoardItem(this.boardItems[itemIndex]));
+        var boardItemIndex = this.boardItems.length;
+        this.boardItems[boardItemIndex] = new LuxKanbanBoardItem(id, board.id, boardIndex, "", 1);
+        dom_board_items_container.prepend(this.renderBoardItem(boardItemIndex));
         
-        // all boardItems of current board except of itemIndex add position +1
+        // all boardItems of current board except latest ADD position +1
         var boardItems = this.getBoardItems(boardIndex);
-        for (let i = 0; i < boardItems.length; i++) {
-            const item = boardItems[i];
-            if (i != itemIndex) {
-                item.position += 1;
-            }
+        for (let i = 0; i < boardItems.length -1; i++) {
+            boardItems[i].position += 1;
         }
 
-        return itemIndex;
+        return boardItemIndex;
     }
 
-    moveBoardItem(id: string, newBoardIndex: number, newBoardItemIndex: number | null) {
+    moveBoardItem(item: LuxKanbanBoardItem, newBoardIndex: number, position: number | null) {
+        var new_position: number = position === null? 1 : position;
+        const board = this.boards[newBoardIndex];
+        
+        if (item.boardIndex !== newBoardIndex && item.position !== position) {
+            // all boardItems of current board is greater OR equels new_position ADD position +1
+            var boardItems = this.getBoardItems(newBoardIndex);
+            for (let i = 0; i < boardItems.length; i++) {
+                if(boardItems[i].position >= new_position) {
+                    boardItems[i].position += 1;
+                }
+            }
+    
+            item.position = new_position;
+            item.boardId = board.id;
+            item.boardIndex = newBoardIndex;
+            this.render();
+        }
+    }
+
+
+    parseInt(text: string | undefined): number | null {
+        if(typeof text === "undefined") return null;
+        var tmp = parseInt(text);
+        return isNaN(tmp)? null : tmp;
+    }
+
+    elementFromPoint(x: number, y: number): HTMLElement | null {
+        var elem: any = document.elementFromPoint(x, y);
+        return elem;
     }
 }
