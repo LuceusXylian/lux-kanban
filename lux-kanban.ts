@@ -107,9 +107,10 @@ class LuxKanban {
         var dom_boardItem_editor = dom_boardItem.appendChild( document.createElement("textarea") );
         dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
         dom_boardItem_editor.innerHTML = item.content;
-        dom_boardItem_editor.addEventListener("change", () => {
-            item.content = dom_boardItem_editor.value;
-            console.log("dom_boardItem_editor.value", dom_boardItem_editor.value);
+        dom_boardItem_editor.addEventListener("input", function() {
+            dom_boardItem_editor.style.height = '1px';
+            dom_boardItem_editor.style.height = dom_boardItem_editor.scrollHeight + 'px';
+            item.content = dom_boardItem_editor.value.split("<").join("&lt;").split(">").join("&gt;");
         });
 
 

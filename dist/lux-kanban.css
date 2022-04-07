@@ -43,7 +43,7 @@
 .lux-kanban-board-item { padding: 1rem; margin-top: 1rem; border-radius: 6px; background-color: #fff; transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); cursor: grab; }
 .lux-kanban-board-item.ondrag { transform: rotate(3deg); cursor: grabbing; pointer-events: none; }
 .lux-kanban-board-item.disabled { background-color: #d9d9d9; }
-.lux-kanban-board-item-editor { width: 100%; max-width: 100%; font-family: inherit; border-radius: 6px; background-color: inherit; border: 1px solid #ccc; resize: none; cursor: text; }
+.lux-kanban-board-item-editor { width: 100%; max-width: 100%; font-family: inherit; border-radius: 6px; background-color: inherit; border: 1px solid #ccc; resize: none; cursor: text; overflow: hidden; min-height: 40px; }
 .lux-kanban-board-item.ondrag .lux-kanban-board-item-editor { cursor: grabbing !important; pointer-events: none; }
 
 
