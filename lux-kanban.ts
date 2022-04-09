@@ -26,12 +26,15 @@ class LuxKanbanBoard {
 
 class LuxKanban {
     targetElement: HTMLElement;
-    dom_boards: HTMLElement[] = [];
+    dom_boardItemContainers: HTMLElement[] = [];
 
     boards: LuxKanbanBoard[];
     boardItems: LuxKanbanBoardItem[];
     gutter: string;
     boardWidth: string;
+
+    mouse_is_up = true;
+
 
     constructor(targetElementId: string, boards: LuxKanbanBoard[], boardItems: LuxKanbanBoardItem[], options: {gutter: string | undefined, boardWidth: string | undefined, autoResponsivePercentageMode: boolean | undefined, }) {
         var targetElement = document.getElementById(targetElementId);
@@ -56,7 +59,7 @@ class LuxKanban {
     
     render() {
         this.targetElement.innerHTML = '';
-        this.dom_boards = [];
+        this.dom_boardItemContainers = [];
 
         for (let b = 0; b < this.boards.length; b++) {
             const boardIndex = b;
@@ -68,6 +71,12 @@ class LuxKanban {
             dom_board.style.width = this.boardWidth;
             dom_board.style.marginLeft = this.gutter;
             dom_board.style.marginBottom = this.gutter;
+            dom_board.addEventListener("mouseover", (event: MouseEvent) => {
+                if (this.mouse_is_up === false) {
+                    event.preventDefault();
+                    console.log("mouseover", event.target);
+                }
+            });
     
 
             let dom_board_header = dom_board.appendChild( document.createElement("div") );
@@ -102,8 +111,9 @@ class LuxKanban {
                 dom_board_items_container.appendChild(this.renderBoardItem(i));
             }
 
-            this.dom_boards[this.dom_boards.length] = dom_board;
+            this.dom_boardItemContainers[this.dom_boardItemContainers.length] = dom_board_items_container;
         }
+
     }
 
     renderBoardItem(boardItemIndex: number): HTMLElement {
@@ -142,8 +152,8 @@ class LuxKanban {
         var mouseup_event = (e: MouseEvent) => {
             clearTimeout(dom_boardItem_timeout);
 
-            if (!mouse_is_up) {
-                mouse_is_up = true;
+            if (!this.mouse_is_up) {
+                this.mouse_is_up = true;
                 console.log("mouseup")
                 dom_boardItem.classList.remove("disabled");
                 if(dom_boardItem_ondrag !== null) {
@@ -181,11 +191,10 @@ class LuxKanban {
 
 
 
-        var mouse_is_up = true;
         dom_boardItem.addEventListener("mousedown", () => {
-            if (mouse_is_up) {
+            if (this.mouse_is_up) {
                 dom_boardItem_timeout = setTimeout(() => {
-                    mouse_is_up = false;
+                    this.mouse_is_up = false;
 
                     dom_boardItem.classList.add("disabled");
                     dom_boardItem_ondrag = document.body.appendChild(this.renderBoardItem(boardItemIndex));

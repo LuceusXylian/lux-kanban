@@ -4,13 +4,17 @@
   "description": "lux-kanban",
   "main": "lux-kanban.ts",
   "scripts": {
-    "test": "npx tsc -p tsconfig.json\nnode ./dist/lux-kanban.js"
+    "css": "./scripts/build_css.sh",
+    "tsc": "npx tsc -p tsconfig.json",
+    "build": "npm run css && npm run tsc && node ./dist/lux-kanban.js",
+    "test": "npm run build && node ./dist/lux-kanban.js"
   },
   "keywords": [
-    "editor"
+    "kanban"
   ],
   "license": "GPL-2.0",
   "devDependencies": {
+    "node-sass": "^7.0.1",
     "typescript": "^4.4.4"
   },
   "repository": {

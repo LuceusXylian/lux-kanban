@@ -18,7 +18,8 @@ var LuxKanbanBoard = (function () {
 }());
 var LuxKanban = (function () {
     function LuxKanban(targetElementId, boards, boardItems, options) {
-        this.dom_boards = [];
+        this.dom_boardItemContainers = [];
+        this.mouse_is_up = true;
         var targetElement = document.getElementById(targetElementId);
         if (targetElement === null) {
             throw new Error("LuxKanban: targetElement not found with id '" + targetElementId + "'");
@@ -40,7 +41,7 @@ var LuxKanban = (function () {
     LuxKanban.prototype.render = function () {
         var _this = this;
         this.targetElement.innerHTML = '';
-        this.dom_boards = [];
+        this.dom_boardItemContainers = [];
         var _loop_1 = function (b) {
             var boardIndex = b;
             var board = this_1.boards[boardIndex];
@@ -51,6 +52,12 @@ var LuxKanban = (function () {
             dom_board.style.width = this_1.boardWidth;
             dom_board.style.marginLeft = this_1.gutter;
             dom_board.style.marginBottom = this_1.gutter;
+            dom_board.addEventListener("mouseover", function (event) {
+                if (_this.mouse_is_up === false) {
+                    event.preventDefault();
+                    console.log("mouseover", event.target);
+                }
+            });
             var dom_board_header = dom_board.appendChild(document.createElement("div"));
             dom_board_header.className = "lux-kanban-board-header";
             dom_board_header.dataset.boardIndex = b.toString();
@@ -74,7 +81,7 @@ var LuxKanban = (function () {
                 var item = boardItems[i];
                 dom_board_items_container.appendChild(this_1.renderBoardItem(i));
             }
-            this_1.dom_boards[this_1.dom_boards.length] = dom_board;
+            this_1.dom_boardItemContainers[this_1.dom_boardItemContainers.length] = dom_board_items_container;
         };
         var this_1 = this, boardItems;
         for (var b = 0; b < this.boards.length; b++) {
@@ -111,8 +118,8 @@ var LuxKanban = (function () {
         };
         var mouseup_event = function (e) {
             clearTimeout(dom_boardItem_timeout);
-            if (!mouse_is_up) {
-                mouse_is_up = true;
+            if (!_this.mouse_is_up) {
+                _this.mouse_is_up = true;
                 console.log("mouseup");
                 dom_boardItem.classList.remove("disabled");
                 if (dom_boardItem_ondrag !== null) {
@@ -142,11 +149,10 @@ var LuxKanban = (function () {
                 document.body.removeEventListener('mousemove', dragmove);
             }
         };
-        var mouse_is_up = true;
         dom_boardItem.addEventListener("mousedown", function () {
-            if (mouse_is_up) {
+            if (_this.mouse_is_up) {
                 dom_boardItem_timeout = setTimeout(function () {
-                    mouse_is_up = false;
+                    _this.mouse_is_up = false;
                     dom_boardItem.classList.add("disabled");
                     dom_boardItem_ondrag = document.body.appendChild(_this.renderBoardItem(boardItemIndex));
                     dom_boardItem_ondrag.classList.add("ondrag");
