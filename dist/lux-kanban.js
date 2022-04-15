@@ -18,7 +18,6 @@ var LuxKanbanBoard = (function () {
 }());
 var LuxKanban = (function () {
     function LuxKanban(targetElementId, boards, boardItems, options) {
-        this.dom_boardItemContainers = [];
         this.mouse_is_up = true;
         var targetElement = document.getElementById(targetElementId);
         if (targetElement === null) {
@@ -41,7 +40,6 @@ var LuxKanban = (function () {
     LuxKanban.prototype.render = function () {
         var _this = this;
         this.targetElement.innerHTML = '';
-        this.dom_boardItemContainers = [];
         var _loop_1 = function (b) {
             var boardIndex = b;
             var board = this_1.boards[boardIndex];
@@ -55,7 +53,6 @@ var LuxKanban = (function () {
             dom_board.addEventListener("mouseover", function (event) {
                 if (_this.mouse_is_up === false) {
                     event.preventDefault();
-                    console.log("mouseover", event.target);
                 }
             });
             var dom_board_header = dom_board.appendChild(document.createElement("div"));
@@ -76,101 +73,125 @@ var LuxKanban = (function () {
             var dom_board_items_container = dom_board.appendChild(document.createElement("div"));
             dom_board_items_container.className = "lux-kanban-board-items-container";
             dom_board_items_container.dataset.boardIndex = b.toString();
-            boardItems = this_1.getBoardItems(b);
+            var boardItems = this_1.getBoardItems(b);
+            console.log("boardItems", boardItems);
             for (var i = 0; i < boardItems.length; i++) {
-                var item = boardItems[i];
-                dom_board_items_container.appendChild(this_1.renderBoardItem(i));
+                var boardItem = boardItems[i];
+                dom_board_items_container.appendChild(this_1.renderBoardItem(boardItem, true));
             }
-            this_1.dom_boardItemContainers[this_1.dom_boardItemContainers.length] = dom_board_items_container;
         };
-        var this_1 = this, boardItems;
+        var this_1 = this;
         for (var b = 0; b < this.boards.length; b++) {
             _loop_1(b);
         }
     };
-    LuxKanban.prototype.renderBoardItem = function (boardItemIndex) {
+    LuxKanban.prototype.renderBoardItem = function (boardItem, addEvents) {
         var _this = this;
-        var boardItem = this.boardItems[boardItemIndex];
         var dom_boardItem = document.createElement("div");
         dom_boardItem.id = boardItem.id;
         dom_boardItem.className = 'lux-kanban-board-item';
         dom_boardItem.dataset.boardIndex = boardItem.boardIndex.toString();
-        dom_boardItem.dataset.boardItemIndex = boardItemIndex.toString();
+        dom_boardItem.dataset.boardItemPosition = boardItem.position.toString();
+        var dom_boardItem_delete = dom_boardItem.appendChild(document.createElement("button"));
+        dom_boardItem_delete.className = 'lux-kanban-board-item-delete __dialog-btn __dialog-btn-sm __dialog-btn-red';
+        dom_boardItem_delete.innerHTML = '&#128465;';
+        dom_boardItem_delete.dataset.boardIndex = boardItem.boardIndex.toString();
+        dom_boardItem_delete.dataset.boardItemPosition = boardItem.position.toString();
         var dom_boardItem_editor = dom_boardItem.appendChild(document.createElement("textarea"));
         dom_boardItem_editor.className = 'lux-kanban-board-item-editor';
         dom_boardItem_editor.dataset.boardIndex = boardItem.boardIndex.toString();
-        dom_boardItem_editor.dataset.boardItemIndex = boardItemIndex.toString();
+        dom_boardItem_editor.dataset.boardItemPosition = boardItem.position.toString();
         dom_boardItem_editor.innerHTML = boardItem.content;
-        dom_boardItem_editor.addEventListener("input", function () {
-            dom_boardItem_editor.style.height = '1px';
-            dom_boardItem_editor.style.height = dom_boardItem_editor.scrollHeight + 'px';
-            boardItem.content = dom_boardItem_editor.value.split("<").join("&lt;").split(">").join("&gt;");
-        });
-        var dom_boardItem_ondrag = null;
-        var dom_boardItem_offset_x = 0;
-        var dom_boardItem_offset_y = 0;
-        var dom_boardItem_timeout = 0;
-        var dragmove = function (e) {
-            if (dom_boardItem_ondrag !== null) {
-                dom_boardItem_ondrag.style.left = (e.clientX - dom_boardItem_offset_x) + "px";
-                dom_boardItem_ondrag.style.top = (e.clientY - dom_boardItem_offset_y) + "px";
-            }
-        };
-        var mouseup_event = function (e) {
-            clearTimeout(dom_boardItem_timeout);
-            if (!_this.mouse_is_up) {
-                _this.mouse_is_up = true;
-                console.log("mouseup");
-                dom_boardItem.classList.remove("disabled");
-                if (dom_boardItem_ondrag !== null)
-                    dom_boardItem_ondrag.remove();
-                document.querySelectorAll(".lux-kanban-board-item.ondrag").forEach(function (elem) { elem.remove(); });
-                var elementTarget = _this.elementFromPoint(e.clientX, e.clientY);
-                if (elementTarget === null) {
-                    console.error("[lux-kanban] Oh well bad, elementTarget is null. Uff.");
+        if (addEvents) {
+            dom_boardItem_delete.addEventListener("click", function (event) {
+                event.preventDefault();
+                _this.deleteBoardItem(dom_boardItem);
+            });
+            dom_boardItem_editor.addEventListener("input", function () {
+                dom_boardItem_editor.style.height = '1px';
+                dom_boardItem_editor.style.height = dom_boardItem_editor.scrollHeight + 'px';
+                boardItem.content = dom_boardItem_editor.value.split("<").join("&lt;").split(">").join("&gt;");
+            });
+            var dom_boardItem_ondrag_1 = null;
+            var dom_boardItem_offset_x_1 = 0;
+            var dom_boardItem_offset_y_1 = 0;
+            var dom_boardItem_timeout_1 = 0;
+            var dragmove = function (e) {
+                if (dom_boardItem_ondrag_1 !== null) {
+                    dom_boardItem_ondrag_1.style.left = (e.clientX - dom_boardItem_offset_x_1) + "px";
+                    dom_boardItem_ondrag_1.style.top = (e.clientY - dom_boardItem_offset_y_1) + "px";
                 }
-                else {
-                    console.log("elementTarget", elementTarget);
+            };
+            var mouseup_event = function (e) {
+                clearTimeout(dom_boardItem_timeout_1);
+                if (!_this.mouse_is_up) {
+                    _this.mouse_is_up = true;
+                    console.log("mouseup");
+                    dom_boardItem.classList.remove("disabled");
+                    if (dom_boardItem_ondrag_1 !== null)
+                        dom_boardItem_ondrag_1.remove();
+                    document.querySelectorAll(".lux-kanban-board-item.ondrag").forEach(function (elem) { elem.remove(); });
+                    var elementTarget = _this.elementFromPoint(e.clientX, e.clientY);
                     if (elementTarget === null) {
                         console.error("[lux-kanban] Oh well bad, elementTarget is null. Uff.");
                     }
                     else {
-                        var newBoardIndex = _this.parseInt(elementTarget.dataset.boardIndex);
-                        var boardItemIndex = _this.parseInt(elementTarget.dataset.boardItemIndex);
-                        if (newBoardIndex === null) {
-                            console.error("[lux-kanban] Oh well bad, newBoardIndex is null. Uff.");
+                        console.log("elementTarget", elementTarget);
+                        if (elementTarget === null) {
+                            console.error("[lux-kanban] Oh well bad, elementTarget is null. Uff.");
                         }
                         else {
-                            var newPosition = boardItemIndex === null ? null : _this.boardItems[boardItemIndex].position - 1;
-                            _this.moveBoardItem(boardItem, newBoardIndex, newPosition);
+                            var newBoardIndex = _this.parseInt(elementTarget.dataset.boardIndex);
+                            var boardItemPosition = _this.parseInt(elementTarget.dataset.boardItemPosition);
+                            if (newBoardIndex === null) {
+                                console.error("[lux-kanban] Oh well bad, newBoardIndex is null. Uff.");
+                            }
+                            else {
+                                var newPosition = boardItemPosition === null ? null : boardItemPosition - 1;
+                                _this.moveBoardItem(boardItem, newBoardIndex, newPosition);
+                            }
                         }
                     }
                 }
                 document.body.removeEventListener('mousemove', dragmove);
-            }
-        };
-        dom_boardItem.addEventListener("mousedown", function () {
-            if (_this.mouse_is_up) {
-                dom_boardItem_timeout = setTimeout(function () {
-                    _this.mouse_is_up = false;
-                    dom_boardItem.classList.add("disabled");
-                    dom_boardItem_ondrag = document.body.appendChild(_this.renderBoardItem(boardItemIndex));
-                    dom_boardItem_ondrag.classList.add("ondrag");
-                    dom_boardItem_ondrag.style.position = "fixed";
-                    dom_boardItem_ondrag.style.display = "none";
-                    setTimeout(function () {
-                        if (dom_boardItem_ondrag !== null) {
-                            dom_boardItem_ondrag.style.display = "block";
-                        }
+                document.body.removeEventListener('mouseup', mouseup_event);
+            };
+            dom_boardItem.addEventListener("mousedown", function () {
+                if (_this.mouse_is_up) {
+                    dom_boardItem_timeout_1 = setTimeout(function () {
+                        _this.mouse_is_up = false;
+                        dom_boardItem.classList.add("disabled");
+                        dom_boardItem_ondrag_1 = document.body.appendChild(_this.renderBoardItem(boardItem, false));
+                        console.log("dom_boardItem_ondrag", dom_boardItem_ondrag_1);
+                        dom_boardItem_ondrag_1.classList.add("ondrag");
+                        dom_boardItem_ondrag_1.style.position = "fixed";
+                        dom_boardItem_ondrag_1.style.display = "none";
+                        setTimeout(function () {
+                            if (dom_boardItem_ondrag_1 !== null) {
+                                dom_boardItem_ondrag_1.style.display = "block";
+                            }
+                        }, 100);
+                        document.body.addEventListener('mousemove', dragmove);
+                        dom_boardItem_offset_x_1 = dom_boardItem.offsetWidth / 2;
+                        dom_boardItem_offset_y_1 = dom_boardItem.offsetHeight / 2;
                     }, 100);
-                    document.body.addEventListener('mousemove', dragmove);
-                    dom_boardItem_offset_x = dom_boardItem.offsetWidth / 2;
-                    dom_boardItem_offset_y = dom_boardItem.offsetHeight / 2;
-                }, 100);
-                document.body.addEventListener("mouseup", mouseup_event);
-            }
-        });
+                    document.body.addEventListener("mouseup", mouseup_event);
+                }
+            });
+        }
         return dom_boardItem;
+    };
+    LuxKanban.prototype.addBoardItem = function (dom_board_items_container, boardIndex) {
+        var board = this.boards[boardIndex];
+        var id = "lux-kanban-board-item-" + new Date().getTime();
+        var boardItemPosition = this.boardItems.length;
+        this.boardItems[boardItemPosition] = new LuxKanbanBoardItem(id, board.id, boardIndex, "", 1);
+        dom_board_items_container.prepend(this.renderBoardItem(this.boardItems[boardItemPosition], true));
+        var boardItems = this.getBoardItems(boardIndex);
+        for (var i = 0; i < boardItems.length - 1; i++) {
+            boardItems[i].position += 1;
+        }
+        return boardItemPosition;
     };
     LuxKanban.prototype.getBoardItems = function (boardIndex) {
         var board = this.boards[boardIndex];
@@ -185,22 +206,22 @@ var LuxKanban = (function () {
             return a.position > b.position ? 1 : 0;
         });
     };
-    LuxKanban.prototype.addBoardItem = function (dom_board_items_container, boardIndex) {
-        var board = this.boards[boardIndex];
-        var id = "lux-kanban-board-item-" + new Date().getTime();
-        var boardItemIndex = this.boardItems.length;
-        this.boardItems[boardItemIndex] = new LuxKanbanBoardItem(id, board.id, boardIndex, "", 1);
-        dom_board_items_container.prepend(this.renderBoardItem(boardItemIndex));
-        var boardItems = this.getBoardItems(boardIndex);
-        for (var i = 0; i < boardItems.length - 1; i++) {
-            boardItems[i].position += 1;
-        }
-        return boardItemIndex;
+    LuxKanban.prototype.deleteBoardItem = function (dom_boardItem) {
+        var newBoardItems = [];
+        this.boardItems.forEach(function (boardItem) {
+            if (boardItem.id !== dom_boardItem.id) {
+                newBoardItems.push(boardItem);
+            }
+        });
+        this.boardItems = newBoardItems;
+        var delme = document.getElementById(dom_boardItem.id);
+        if (delme !== null)
+            delme.remove();
     };
     LuxKanban.prototype.moveBoardItem = function (item, newBoardIndex, position) {
         var new_position = position === null ? 1 : position;
         var board = this.boards[newBoardIndex];
-        if (item.boardIndex !== newBoardIndex && item.position !== position) {
+        if (item.boardIndex !== newBoardIndex || (item.boardIndex === newBoardIndex && item.position !== position)) {
             var boardItems = this.getBoardItems(newBoardIndex);
             for (var i = 0; i < boardItems.length; i++) {
                 if (boardItems[i].position >= new_position) {
