@@ -156,9 +156,8 @@ class LuxKanban {
                 this.mouse_is_up = true;
                 console.log("mouseup")
                 dom_boardItem.classList.remove("disabled");
-                if(dom_boardItem_ondrag !== null) {
-                    dom_boardItem_ondrag.remove();
-                }
+                if(dom_boardItem_ondrag !== null) dom_boardItem_ondrag.remove();
+                document.querySelectorAll(".lux-kanban-board-item.ondrag").forEach((elem) => { elem.remove() });
 
                 // mouseup events on boards and items (drag reciever)
                 var elementTarget: HTMLElement | null = this.elementFromPoint(e.clientX, e.clientY);

@@ -122,9 +122,9 @@ var LuxKanban = (function () {
                 _this.mouse_is_up = true;
                 console.log("mouseup");
                 dom_boardItem.classList.remove("disabled");
-                if (dom_boardItem_ondrag !== null) {
+                if (dom_boardItem_ondrag !== null)
                     dom_boardItem_ondrag.remove();
-                }
+                document.querySelectorAll(".lux-kanban-board-item.ondrag").forEach(function (elem) { elem.remove(); });
                 var elementTarget = _this.elementFromPoint(e.clientX, e.clientY);
                 if (elementTarget === null) {
                     console.error("[lux-kanban] Oh well bad, elementTarget is null. Uff.");
