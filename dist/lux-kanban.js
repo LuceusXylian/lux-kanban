@@ -37,7 +37,7 @@ var LuxKanban = (function () {
         this.boards = boards;
         this.gutter = options.gutter === undefined ? "10px" : options.gutter;
         if (options.boardWidth === undefined || options.autoResponsivePercentageMode) {
-            this.boardWidth = 'calc(' + (100 / this.boards.length) + '% - ' + this.gutter + ')';
+            this.boardWidth = 'calc(' + (100 / this.boards.length) + '% - ' + this.gutter + ' - (' + this.gutter + ' / ' + (this.boards.length) + '))';
         }
         else {
             this.boardWidth = options.boardWidth;
