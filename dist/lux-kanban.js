@@ -303,16 +303,18 @@ var LuxKanban = (function () {
         }
     };
     LuxKanban.prototype.save = function () {
-        localStorage.setItem(this.targetElement.id, JSON.stringify(this.boardItems));
+        var data = JSON.stringify(this.boardItems);
+        localStorage.setItem(this.targetElement.id, data);
         if (this.onSave !== null)
             this.onSave();
+        return data;
     };
     LuxKanban.prototype.sync = function () {
         var _this = this;
         if (this.endpoints.sync !== null) {
             if (this.onSyncStart !== null)
                 this.onSyncStart();
-            var sentData = "&data=" + JSON.stringify(this.boardItems);
+            var sentData = "&data=" + this.save();
             this.api_request(this.endpoints.sync, sentData, function (response, xhr) {
                 _this.boardItems = response.data;
                 if (_this.onSyncSuccess !== null)

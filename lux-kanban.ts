@@ -398,8 +398,10 @@ class LuxKanban {
     }
 
     save() {
-        localStorage.setItem(this.targetElement.id, JSON.stringify(this.boardItems));
+        var data = JSON.stringify(this.boardItems);
+        localStorage.setItem(this.targetElement.id, data);
         if(this.onSave !== null) this.onSave();
+        return data;
     }
 
     // Sync method is called on save and load, so data can be loaded and saved from/to the backend.
@@ -408,7 +410,7 @@ class LuxKanban {
         if (this.endpoints.sync !== null) {
             if(this.onSyncStart !== null) this.onSyncStart();
 
-            var sentData = "&data="+JSON.stringify(this.boardItems);
+            var sentData = "&data="+this.save();
 
             this.api_request(this.endpoints.sync, sentData, 
                 (response: any, xhr: XMLHttpRequest) => {

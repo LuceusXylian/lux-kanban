@@ -57,8 +57,9 @@
                 autoResponsivePercentageMode: false,                             // if it is true, use percentage in the width of the boards
                 onLoad           : function () {},                               // callback when data has been loaded from localStorage
                 onSave           : function () {},                               // callback when data has been saved to the localStorage
-                onSyncStart      : function (response, xhr) {},                  // callback before data has been sent to the backend
-                onSyncSuccess    : function (response, xhr) {},                  // callback before data has been sent to the backend
+                onSyncStart      : function () {},                               // callback before data has been sent to the backend
+                onSyncSuccess    : function (response, xhr) {},                  // callback when sync successfully finished
+                onSyncError      : function (response, xhr) {},                  // callback on sync error
             }
         );
     </script>
